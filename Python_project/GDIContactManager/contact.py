@@ -126,16 +126,18 @@ def add():
         email = input("Please enter a valid e-mail: ")
         email_validated = re.search(regex, email)
 
-    phone_num_entered = input("Please enter a phone number: ")
-
-    phone_num = []
-
-    for n in phone_num_entered:
-        if n.isdigit():
-            phone_num.append(n)
-    
-    formatted_num = "".join(phone_num)
-    
+    while True:
+        phone_num_entered = input("Please Enter in a Phone Number (+1,xxx-xxx-xxxx): ")
+        valid,formatted_num = get_phone(phone_num_entered)
+        if valid == True:
+            break
+        else:
+            chk = input("\nWould you like to try again? (Y/N)")
+            if chk[:1].upper() == "Y":                
+                continue
+            elif chk[:1].upper() == "N":
+                print("\nPhone Number couldn't be validated.")
+                break    
     print (f"The phone number added is {formatted_num}")
 
    #Check if Contact Exists
@@ -200,6 +202,100 @@ def delete(matches):
         print("\nInvalid selection.")
         menu()
 
+def get_phone(phone):
+    
+    try:
+        line = phone
+
+        #line = "+1,(716)545-2718"
+        #line = "+1,716 545-2718"
+        #line = "+44 20 7987 0656"
+        #line = "+1,716-454-1234"
+        #line = "1,716 545 1212"
+        #line = "(716)545 2718"
+        #line = "7165452718"
+        #line = "5454545"
+        #line = "(716)lll545 2718"
+        #line = "+1,7165452718"
+        #line = "+17165452718"  Can't handle this case
+
+        #Allowed characters striping letters
+        newline = ""
+        allowed = ['0','1','2','3','4','5','6','7','8','9','+','(',')'," ",',','-','.']        
+        for char in line:
+            if char in allowed:
+                newline += char
+
+        #Remove all extra characters in list and replace with space
+        line = newline
+        line = replaceMultiple(line, ['(' ,')' ,'.' ,'-' ,','] , " ")
+        
+        #Split the results
+        line = line.lstrip()
+        line = line.split(" ")
+        rst = len(line)
+        
+        #International
+        if "+" in line[0]:
+
+            #"+ 1,716-454-1234"
+            if rst == 5:
+                return True,"{}{},({}){}-{}".format(line[0],line[1],line[2],line[3],line[4])
+            #"+1,716-454-1234"
+            elif rst == 4:
+                return True,"{},({}){}-{}".format(line[0],line[1],line[2],line[3])
+            elif rst == 2 and len(line[1])==10:
+                numpart = str(line[1])
+                return True, "{}({}){}-{}".format(line[0],numpart[0:3],numpart[3:6],numpart[6:10])
+            else:
+                print(f"Possible Error, International number (+1,xxx-xxx-xxxx): {phone}")
+                return False, phone
+
+        #Possible International
+        #"1,716-545-2718"
+        elif rst == 4:
+            return True, "+{},({}){}-{}".format(line[0],line[1],line[2],line[3])
+
+        #line = "(716)545 2718"
+        elif rst == 3:
+            if len(line[0])==3 and len(line[1])==3 and len(line[2])==4:
+                return True, "({}){}-{}".format(line[0],line[1],line[2])
+        #line="545 2121"
+        elif rst == 2:
+            if len(line[0])==3 and len(line[1])==4:
+                return True, "{}-{}".format(line[0],line[1])
+        elif rst == 1:
+            numpart = str(line[0])
+            if len(line[0])==10:                
+                return True, "({}){}-{}".format(numpart[0:3],numpart[3:6],numpart[6:10])
+            elif len(line[0])==7:                
+                print ("Invalid format: {}-{}".format(numpart[0:3],numpart[3:6],numpart[6:9]))
+                return False, phone                
+            else:
+                print(f"Possible Error, number (+1,xxx-xxx-xxxx): {phone}")
+                return False, phone
+        else:
+            print(f"Possible Error, number (+1,xxx-xxx-xxxx): {phone}")            
+            return False, phone
+                 
+    except ValueError:
+        print(f"Error: phone number (+1,xxx-xxx-xxxx): {phone}")
+        return False, phone
+        
+        
+        
+def replaceMultiple(mainString, toBeReplaces, newString):
+    # Iterate over the strings to be replaced
+    print(newString)
+    for elem in toBeReplaces :
+        # Check if string is in the main string
+        if elem in mainString :
+            # Replace the string
+            mainString = mainString.replace(elem, newString)
+    #if mainString[0] in "-" :
+    #            mainString = mainString.replace("-", "" , 1)
+                
+    return  mainString
 
 def main():
     print("\nWelcome to Contact Manager\n")
