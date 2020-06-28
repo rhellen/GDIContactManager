@@ -2,7 +2,6 @@ import re
 import sys
 
 contacts = []
-contact_dict = {}
 uids = []
 
 class Contact:
@@ -56,20 +55,18 @@ def menu():
 
 def all_contacts():
 #lists all the contacts
-    #print("\nCommand: List")
     print ("Listing all contacts:")
     global contacts
     if active_list():
         for i in contacts:
             #print only their ID and full name
-            print(f"{i.uid}. Full name: {i.fullname}")
+            print(f"{i.uid}, Full name: {i.fullname}")
 
 def view():
 #list one contact
     if active_list():
         all_contacts()
         selection = input("Enter the user's ID to view more details: \n")
-        cnt = 0
         for entry in contacts:
             if int(selection) == int(entry.uid):
                 print(f"User details for {entry.fullname}:\n")
