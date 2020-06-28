@@ -1,13 +1,23 @@
-import random
 import re
 import sys
 
-from random import choice
-
 contacts = []
+contact_dict = {}
 uids = []
-#contacts = [['Clark','Melanie','Melanie Clark','asldfj@lskdjf','23948-234'],['mel','Clark','Mel Clark','lskdfj@slkdjf','234']]
 
+class Contact:
+#common base class for all Contacts
+    
+    #initializes our class; only UID, last name, first name, full name and email are required - phone is optional
+    def __init__(self, uid, lname, fname, fullname, email, phone_number = None):
+        
+        self.uid = uid
+        self.lname = lname
+        self.fname = fname
+        self.fullname = fullname
+        self.email = email
+        self.phone_number = phone_number
+     
 def menu():
 
     print("\nCommand Menu\n")
@@ -22,21 +32,16 @@ def menu():
 
     while True:
         if choice == "list":
+            print("Command:  List")
             all_contacts()
         elif choice == "view":
             print("Command:  View")
-            search = input("Search Name (first and last): ")
-            view(search)
+            view()
         elif choice == "add":
             add()
         elif choice == "del":
             print("Command:  Delete")
-            search = input("Search Name (first and last): ")
-            matches = view(search)
-            if len(matches) <= 0:
-                print("\nNo Matches Found.")
-            else:
-                delete(matches)
+            delete()
         elif choice == "exit":
             break
         else:
@@ -51,24 +56,32 @@ def menu():
 
 def all_contacts():
 #lists all the contacts
-    print("\nCommand: List")
+    #print("\nCommand: List")
+    print ("Listing all contacts:")
     global contacts
     if active_list():
         for i in contacts:
-            print(i)
+            #print only their ID and full name
+            print(f"{i.uid}. Full name: {i.fullname}")
 
-def view(search):
+def view():
 #list one contact
-    search_list = []
     if active_list():
+        all_contacts()
+        selection = input("Enter the user's ID to view more details: \n")
         cnt = 0
         for entry in contacts:
-            if search.upper() in str(entry).upper():
-                #Display items that are possible matches and store
-                print(entry)
-                search_list.append(entry)
-                cnt += 1
-    return search_list
+            if int(selection) == int(entry.uid):
+                print(f"User details for {entry.fullname}:\n")
+                print(f"ID: {entry.uid}")
+                print(f"Last name: {entry.lname}")
+                print(f"First name: {entry.fname}")
+                print(f"Full name: {entry.fullname}")
+                print(f"E-mail: {entry.email}")
+                if entry.phone_number:
+                    print(f"Phone number: {entry.phone_number}")
+                else:
+                    print(f"Phone number: None provided")
 
 def getname():
 
@@ -105,13 +118,16 @@ def add():
 #(2)Adds one new contact.
 
     global contacts
-    random_uid = None
 
     if len(uids) >0:
-        # create a new random UID for this addition, and then append the UID list
-        random_uid = choice([i for i in range(0,100) if i not in uids])
+        #go through the UIDs so far and increment the last value by 1
+        uid_val = uids[len(uids)-1]
+  
+        # create a new UID for the new contact
+        new_uid = uid_val+1
     else:
-        random_uid = random.randint(0, 100)
+        # our contact list is empty, so we start from 0 and give our first contact an ID of 1
+        new_uid = 1
 
     regex = '^[a-z0-9]+[\._]?[a-z0-9]+[@]\w+[.]\w{2,3}$'
 
@@ -127,41 +143,54 @@ def add():
         email_validated = re.search(regex, email)
 
     while True:
-        phone_num_entered = input("Please Enter in a Phone Number (+1,xxx-xxx-xxxx): ")
+        phone_num_entered = input("Please Enter in a phone number (+1,xxx-xxx-xxxx) - this is optional: ")
         valid,formatted_num = get_phone(phone_num_entered)
         if valid == True:
             break
         else:
-            chk = input("\nWould you like to try again? (Y/N)")
-            if chk[:1].upper() == "Y":                
+            chk = input("\nWould you like to try again? (Y/N) ")
+            if chk[:1].upper() == "Y":     
+                print (f"The phone number added is {formatted_num}")           
                 continue
             elif chk[:1].upper() == "N":
-                print("\nPhone Number couldn't be validated.")
+                print("\nPhone Number couldn't be validated - no number was added.")
                 break    
-    print (f"The phone number added is {formatted_num}")
+    
 
-   #Check if Contact Exists
-    res1 = any(fullname in sublist for sublist in contacts)
+#Check if Contact Exists by checking for the same full name in the dictionary
+    res1 = []
 
-    if res1 == True:
+    for item in contacts:
+        if fullname in item.fullname:
+            res1.append(item)
+
+    if len(res1) > 0:
         
-        print(f"Warning: A similar contact was found.  This may be a duplicate. {res1}")
+        print(f"Warning: Similar contacts were found.  This may be a duplicate.")
+        # from a customer perspective, we assume displaying the dupliate records are OK in this case
+        # in other cases, we may not want to unless the user is an admin
+        print (f"Here are the possible duplicates: \n")
+
+        for con in res1:
+            print(f"ID: {con.uid}, Fullname: {con.fullname}, Email: {con.email}, Phone number: {con.phone_number}")
 
         while True:
             chk = input("\nWould you like to continue? (Y/N)")
             if chk[:1].upper() == "Y":
-                contacts.append([random_uid,lname,fname,fullname,email,formatted_num])
-                uids.append(random_uid)
-                print(f"\n\n {fullname} was added")
+                new_contact = Contact(new_uid, lname, fname, fullname, email, formatted_num)
+                contacts.append(new_contact)
+                uids.append(new_uid)
+                print(f"\n\n {new_contact.fullname} was added")
                 break
-                #print(contacts)
             elif chk[:1].upper() == "N":
                 print("\nContact Not Added")
                 break
     else:
-        contacts.append([random_uid, lname,fname,fullname,email,formatted_num])
-        uids.append(random_uid)
-        print(f"{fullname} was added.")
+        new_contact = Contact(new_uid, lname, fname, fullname, email, formatted_num)
+        contacts.append(new_contact)
+        uids.append(new_uid)
+        print(f"{new_uid} was added.")
+        print(f"{new_contact.fullname} was added.")
 
 def active_list():
     if len(contacts) > 0:
@@ -177,12 +206,13 @@ def is_number(x):
     except ValueError:
         return False
 
-def delete(matches):
+def delete():
 #(1)Displays lists of contacts
 #(2)User selects one contact to delete
 
+    all_contacts()
     record_to_delete = input("\nSelect a contact to be deleted by entering their User ID: ")
-
+    
     try:
         if is_number(record_to_delete):
             record_to_delete = int(record_to_delete)
@@ -191,7 +221,7 @@ def delete(matches):
             records_deleted = 0
             
             for entry in contacts:
-                if int(entry[0]) == record_to_delete:
+                if int(entry.uid) == record_to_delete:
                     contacts.remove(entry)
                     print("\nDelete successful.")
                     records_deleted += 1
@@ -277,7 +307,7 @@ def get_phone(phone):
         else:
             print(f"Possible Error, number (+1,xxx-xxx-xxxx): {phone}")            
             return False, phone
-                 
+                
     except ValueError:
         print(f"Error: phone number (+1,xxx-xxx-xxxx): {phone}")
         return False, phone
@@ -298,6 +328,18 @@ def replaceMultiple(mainString, toBeReplaces, newString):
     return  mainString
 
 def main():
+    # initialize a test list
+    ramya = Contact(1, "Ramesh", "Ramya", "Ramya Ramesh", "rramesh1217@gmail.com", "(123)123-12345")
+    uids.append(1)
+    melanie = Contact(2, "Melanie", "Clark", "Melanie Clark", "test@test.com")
+    uids.append(2)
+    test_user = Contact(3, "Smith", "John", "John Smith", "johnsmith@gmail.com", "(412)412-4123")
+    uids.append(3)
+    
+    contacts.append(ramya)
+    contacts.append(melanie)
+    contacts.append(test_user) 
+
     print("\nWelcome to Contact Manager\n")
     menu()
 
