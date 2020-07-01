@@ -67,8 +67,11 @@ def view():
     if active_list():
         all_contacts()
         selection = input("Enter the user's ID to view more details: \n")
+        contact_found = False
         for entry in contacts:
             if int(selection) == int(entry.uid):
+                # we found the contact, so set this value to True
+                contact_found = True
                 print(f"User details for {entry.fullname}:\n")
                 print(f"ID: {entry.uid}")
                 print(f"Last name: {entry.lname}")
@@ -79,6 +82,8 @@ def view():
                     print(f"Phone number: {entry.phone_number}")
                 else:
                     print(f"Phone number: None provided")
+        if not contact_found:
+            print(f"ID {selection} could not be found.  Returning to the main menu...")
 
 def getname():
 
