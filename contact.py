@@ -186,7 +186,7 @@ def add():
         new_contact = Contact(new_uid, lname, fname, fullname, email, formatted_num)
         contacts.append(new_contact)
         uids.append(new_uid)
-        print(f"{new_uid} was added.")
+        print(f"Contact id: {new_uid} was added.")
         print(f"{new_contact.fullname} was added.")
 
 def active_list():
@@ -309,19 +309,15 @@ def get_phone(phone):
         print(f"Error: phone number (+1,xxx-xxx-xxxx): {phone}")
         return False, phone
         
-        
-        
 def replaceMultiple(mainString, toBeReplaces, newString):
     # Iterate over the strings to be replaced
-    print(newString)
+    
     for elem in toBeReplaces :
         # Check if string is in the main string
         if elem in mainString :
             # Replace the string
             mainString = mainString.replace(elem, newString)
-    #if mainString[0] in "-" :
-    #            mainString = mainString.replace("-", "" , 1)
-                
+    
     return  mainString
 
 def main():
