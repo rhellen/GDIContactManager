@@ -79,8 +79,6 @@ def view():
                     print(f"Phone number: {entry.phone_number}")
                 else:
                     print(f"Phone number: None provided")
-        if int(selection) > len(contacts):
-            print("\nContact not found. Please try again.")
 
 def getname():
 
