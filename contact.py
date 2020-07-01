@@ -137,8 +137,6 @@ def add():
         #re-run the function
         fullname, lname, fname, chk = getname()
     
-    print(f"The fullname is {fullname}, the first name is {fname} and the last name is {lname}")
-    
     email = input("Email: ")
     email_validated = re.search(regex, email)
 
