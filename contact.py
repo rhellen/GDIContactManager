@@ -99,13 +99,8 @@ def getname():
 
     #check First Name and Last Name are correct.
     chk = input(f"Is the full name *{fname} {lname}* correct? (Y/N) ")
-    accepted_answers = ["Y", "y", "YES", "yes", "yup", "Yes"]
-    
-    if chk not in accepted_answers:
-        #re-run the function
-        getname()
 
-    return fullname, lname, fname
+    return fullname, lname, fname, chk
 
 def is_fullname(name):
     try:
@@ -134,7 +129,15 @@ def add():
     regex = '^[a-z0-9]+[\._]?[a-z0-9]+[@]\w+[.]\w{2,3}$'
 
     print("\nCommand:  Add")
-    fullname, lname, fname = getname()
+    fullname, lname, fname, chk = getname()
+    accepted_answers = ["Y", "y", "YES", "yes", "yup", "Yes"]
+
+    while chk not in accepted_answers:
+        
+        #re-run the function
+        fullname, lname, fname, chk = getname()
+    
+    print(f"The fullname is {fullname}, the first name is {fname} and the last name is {lname}")
     
     email = input("Email: ")
     email_validated = re.search(regex, email)
