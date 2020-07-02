@@ -328,7 +328,7 @@ def replaceMultiple(mainString, toBeReplaces, newString):
 
 def main():
     # initialize a test list
-    ramya = Contact(1, "Ramesh", "Ramya", "Ramya Ramesh", "rramesh1217@gmail.com", "(123)123-12345")
+    ramya = Contact(1, "Ramesh", "Ramya", "Ramya Ramesh", "rramesh@gmail.com", "(123)123-12345")
     uids.append(1)
     melanie = Contact(2, "Melanie", "Clark", "Melanie Clark", "test@test.com")
     uids.append(2)
